@@ -1,0 +1,138 @@
+一、SRA原始数据下载（参考生信院官方教程）
+
+1.下载aspera安装包
+wget http://sxygptcloud.com:4000/aspera-connect-3.7.4.147727-linux-64.sh
+
+2.安装aspera
+bash aspera-connect-3.7.4.147727-linux-64.sh
+echo 'export PATH=~/.aspera/connect/bin:$PATH' >> ~/.bashrc && source ~/.bashrc
+
+3.验证是否安装成功
+ascp --version
+
+4.获取SRA数据下载地址
+# 登录服务器终端执行
+wget http://sxygptcloud.com:4000/enaBrowserTools-master.zip
+unzip enaBrowserTools-master.zip
+cd enaBrowserTools-master/python3/
+python enaDataGet.py -f fastq SRR20330029 #SRR20330029修改为你想要查询的SRA数据号
+#获得下载地址，例如：vol1/fastq/SRR203/029/SRR20330029/
+
+5.开始下载SRA数据
+# 修改SRR20330029为自己需要的SRA号即可，修改下载地址的前缀SRR203/029（前缀为第4步获得）
+ascp -v -Q -T -l 500m -P 33001 -k 1 -i ~/.aspera/connect/etc/asperaweb_id_dsa.openssh era-fasp@fasp.sra.ebi.ac.uk:vol1/fastq/SRR203/029/SRR20330029/ ./SRR20330029
+
+
+二、fastp数据质控
+
+1.安装fastp
+# bioconda可以安装，但一般不是最新版，推荐采用wget安装（fastp的Github官网有教程，如下）
+
+# download the latest build
+wget http://opengene.org/fastp/fastp
+chmod a+x ./fastp
+
+2.nano编写fastp质控脚本（替换所需的SRR编号），脚本(fastp.sh)内容如下：
+——————————————————————————————————————————
+
+#!/bin/bash
+
+# 循环处理每个样本文件夹
+for sample in SRR13390162 SRR13390163 SRR13390164 SRR13390170 SRR13390171 SRR13390172
+do
+    echo "Processing $sample..."
+
+    fastp \
+        -i ${sample}/${sample}_1.fastq.gz \
+        -I ${sample}/${sample}_2.fastq.gz \
+        -o fastp_out/${sample}_1.clean.fastq.gz \
+        -O fastp_out/${sample}_2.clean.fastq.gz \
+        -W 4 -M 20 -q 15 -u 40 -3 -n 5 -c -l 50 -w 8 \
+        -h fastp_out/${sample}.html \
+        -j fastp_out/${sample}.json
+done
+
+——————————————————————————————————————————
+3.运行脚本
+bash fastp.sh
+
+
+三、Bowtie2去宿主
+
+1.安装bowtie2
+
+# 下载 Bowtie2 2.5.4 官方二进制（替换所需版本号）
+wget https://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.5.4/bowtie2-2.5.4-linux-x86_64.zip
+unzip bowtie2-2.5.4-linux-x86_64.zip
+
+# 添加到PATH（这里选择永久生效）
+nano ~/.bashrc
+
+# 在文件末尾添加（full/path/to替换为文件原始路径）：
+export PATH=/full/path/to/bowtie2-2.5.4-linux-x86_64:$PATH
+
+# 让配置立即生效
+source ~/.bashrc
+
+# 验证是否安装成功
+bowtie2 --version
+
+2. 下载宿主的参考基因组数据（以野骆驼参考基因组GCF_009834535.1为例）
+
+# 创建目录存放基因组
+mkdir -p ~/genomes/camel
+cd ~/genomes/camel
+
+# 下载 RefSeq assembly 的 fasta（全染色体/contig）
+wget https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/009/834/535/GCF_009834535.1_BCGSAC_Cfer_1.0/GCF_009834535.1_BCGSAC_Cfer_1.0_genomic.fna.gz
+
+# 解压
+gunzip GCF_009834535.1_BCGSAC_Cfer_1.0_genomic.fna.gz
+
+# 下载完成后会得到：
+~/genomes/camel/GCF_009834535.1_BCGSAC_Cfer_1.0_genomic.fna
+
+3.建立Bowtie2索引文件
+
+#在参考基因组所在文件夹运行：
+bowtie2-build --threads 35 GCF_009834535.1_BCGSAC_Cfer_1.0_genomic.fna camel_index   #35线程加速
+
+4.用 Bowtie2 比对宏基因组数据
+
+#在数据所在文件夹写批量处理脚本
+nano host_remove.sh
+
+##脚本内容##
+————————————————————————————————————————————————
+
+#!/bin/bash
+
+# ===============================
+# 批量去宿主脚本 (Bowtie2)
+# ===============================
+
+# 宿主索引路径
+INDEX=/data/gxa3001s19/project/1_MAG_desert/analysis/2_host.remove_bowtie2/genomes/camel/camel_index
+
+# 样本列表
+SAMPLES="SRR13390162 SRR13390163 SRR13390164 SRR13390170 SRR13390171 SRR13390172"
+
+# CPU 核心数（根据机器调整，单样本8核）
+THREADS=8
+
+for sample in $SAMPLES
+do
+    echo ">>> Processing $sample ..."
+    
+    bowtie2 -x $INDEX \
+        -1 ${sample}_1.clean.fastq.gz -2 ${sample}_2.clean.fastq.gz \
+        --very-sensitive -p $THREADS \
+        --un-conc-gz ${sample}_%.nohost.clean.fastq.gz \
+        -S ${sample}_vs_camel.sam
+    
+    echo ">>> Done: $sample"
+done
+
+—————————————————————————————————————————————————
+#运行脚本
+bash host_remove.sh
