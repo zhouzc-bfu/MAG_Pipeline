@@ -128,7 +128,8 @@ do
         -1 ${sample}_1.clean.fastq.gz -2 ${sample}_2.clean.fastq.gz \
         --very-sensitive -p $THREADS \
         --un-conc-gz ${sample}_%.nohost.clean.fastq.gz \
-        -S ${sample}_vs_camel.sam
+        -S ${sample}_vs_camel.sam \
+        2> ${sample}_bowtie2.log
     
     echo ">>> Done: $sample"
 done
