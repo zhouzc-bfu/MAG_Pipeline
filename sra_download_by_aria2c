@@ -1,0 +1,24 @@
+# 如果Aspera下载SRA原始数据过程中遇到网络波动问题导致无法下载的时候，可采用aria2c进行下载 #
+
+1.安装aria2c（可采用conda等进行安装，此处略）
+
+2.查找SRR下载链接
+通过https://www.ebi.ac.uk/ena/browser/home网站对SRR编号进行搜索，即可复制下载链接（ftp//可换成https//以获得更快下载）
+
+3.下载单个sra示例
+aria2c -s 16 -x 16 -c https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR328/097/SRR32865897/SRR32865897_1.fastq.gz
+aria2c -s 16 -x 16 -c https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR328/097/SRR32865897/SRR32865897_2.fastq.gz
+
+4.下载多个sra示例
+# 建立sra下载链接列表：sra.txt，如下（通过nano sra.txt）：
+https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR328/098/SRR32865898/SRR32865898_1.fastq.gz
+https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR328/098/SRR32865898/SRR32865898_2.fastq.gz
+https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR328/004/SRR32865904/SRR32865904_1.fastq.gz
+https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR328/004/SRR32865904/SRR32865904_2.fastq.gz
+https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR328/005/SRR32865905/SRR32865905_1.fastq.gz
+https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR328/005/SRR32865905/SRR32865905_2.fastq.gz
+https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR328/006/SRR32865906/SRR32865906_1.fastq.gz
+https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR328/006/SRR32865906/SRR32865906_2.fastq.gz
+
+#执行下载命令
+aria2c -s 16 -x 16 -j 5 -c -i sra.txt
