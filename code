@@ -1,18 +1,21 @@
-一、SRA原始数据下载（参考生信院官方教程）
+一、SRA原始数据下载（aspera高速下载）
 
-1.下载aspera安装包
-wget http://sxygptcloud.com:4000/aspera-connect-3.7.4.147727-linux-64.sh
+1.下载aspera安装包到本地并上传至服务器
 
 2.安装aspera
-bash aspera-connect-3.7.4.147727-linux-64.sh
+bash aspera-connect-*.sh
 echo 'export PATH=~/.aspera/connect/bin:$PATH' >> ~/.bashrc && source ~/.bashrc
 
 3.验证是否安装成功
 ascp --version
 
-4.获取SRA数据下载地址
+4.获取aspera下载密码（高版本需要）
+strings ~/.aspera/connect/bin/asperaconnect.bin | grep -Ee '^7[0-9a-f]{7}-'
+#输出的第2行为密码
+
+5.获取SRA数据下载地址
 # 登录服务器终端执行
-wget http://sxygptcloud.com:4000/enaBrowserTools-master.zip
+wget http://sxygptcloud.com:4000/enaBrowserTools-master.zip # 该链接为生信院自建镜像，其他用户另找链接下载即可
 unzip enaBrowserTools-master.zip
 cd enaBrowserTools-master/python3/
 python enaDataGet.py -f fastq SRR20330029 #SRR20330029修改为你想要查询的SRA数据号
@@ -20,8 +23,9 @@ python enaDataGet.py -f fastq SRR20330029 #SRR20330029修改为你想要查询�
 
 5.开始下载SRA数据
 # 修改SRR20330029为自己需要的SRA号即可，修改下载地址的前缀SRR203/029（前缀为第4步获得）
-ascp -v -Q -T -l 500m -P 33001 -k 1 -i ~/.aspera/connect/etc/asperaweb_id_dsa.openssh era-fasp@fasp.sra.ebi.ac.uk:vol1/fastq/SRR203/029/SRR20330029/ ./SRR20330029
-
+ascp -v -Q -T -l 500m -P 33001 -k 1 -i ~/.aspera/connect/etc/aspera_tokenauth_id_rsa era-fasp@fasp.sra.ebi.ac.uk:vol1/fastq/SRR203/029/SRR20330029/ ./SRR20330029
+# ~/.aspera/connect/etc/aspera_tokenauth_id_rsa为密钥文件地址，不同版本该地址可能不一样，旧版本可能为~/.aspera/connect/etc/asperaweb_id_dsa.openssh
+# 弹出填写密码即把第4步所获密码复制进去即可
 
 二、fastp数据质控
 
