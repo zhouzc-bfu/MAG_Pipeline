@@ -1,2 +1,9 @@
 # 批量检查下载的SRA原始数据的fastq.gz文件是否损坏
-find . -name "*.fastq.gz" -exec sh -c 'gunzip -t "$1" && printf "OK %s\n" "$1" || printf "FAIL %s\n" "$1"' _ {} \; | sort
+find . -name "*.fastq.gz" -exec sh -c 'gunzip -t "$1" && printf "OK %s\n" "$1" || printf "FAIL %s\n" "$1"' _ {} \; | sort | tee check_result.txt
+
+# 对某几个原始数据文件进行针对检查如下
+for file in "./sample1.fastq.gz" "./dir/sample2.fastq.gz" "./dir/sample3.fastq.gz"; do
+    if [ -f "$file" ]; then
+        gunzip -t "$file" && printf "OK %s\n" "$file" || printf "FAIL %s\n" "$file"
+    fi
+done | sort | tee check_result.txt
