@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# 定义重试下载函数
+download_with_retry() {
+    local url=$1
+    local max_retries=3
+    local retry_count=0
+    local filename=$(basename "$url")
+    
+    echo "开始下载: $filename"
+    
+    while [ $retry_count -lt $max_retries ]; do
+        ascp -v -Q -T -l 500m -P 33001 -k 3 -i ~/.aspera/connect/etc/asperaweb_id_dsa.openssh "$url" .
+        
+        if [ $? -eq 0 ]; then
+            echo "$filename 下载完成"
+            return 0
+        else
+            ((retry_count++))
+            if [ $retry_count -lt $max_retries ]; then
+                echo "$filename 第 $retry_count 次重试，10秒后继续..."
+                sleep 10
+            else
+                echo "$filename 达到最大重试次数，下载失败"
+                return 1
+            fi
+        fi
+    done
+}
+
+# 主程序
+date
+
+download_with_retry "era-fasp@fasp.sra.ebi.ac.uk:/vol1/fastq/SRR288/008/SRR28806308/" # 替换链接即可
+download_with_retry "era-fasp@fasp.sra.ebi.ac.uk:/vol1/fastq/SRR207/000/SRR20707900/" # 替换链接即可
+
+date
