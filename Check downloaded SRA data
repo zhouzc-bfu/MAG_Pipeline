@@ -1,0 +1,2 @@
+# 批量检查下载的SRA原始数据的fastq.gz文件是否损坏
+find . -name "*.fastq.gz" -exec sh -c 'gunzip -t "$1" && printf "OK %s\n" "$1" || printf "FAIL %s\n" "$1"' _ {} \; | sort
