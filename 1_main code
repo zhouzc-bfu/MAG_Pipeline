@@ -41,7 +41,6 @@ chmod a+x ./fastp
 
 2.nano编写fastp质控脚本（替换所需的SRR编号），脚本(fastp.sh)内容如下：
 ——————————————————————————————————————————
-
 #!/bin/bash
 
 # 循环处理每个样本文件夹
@@ -58,8 +57,38 @@ do
         -h fastp_out/${sample}.html \
         -j fastp_out/${sample}.json
 done
-
 ——————————————————————————————————————————
+#若序列文件为整体文件，即非按SRR号文件归纳，则用以下脚本：
+#!/bin/bash
+
+# 创建输出目录
+mkdir -p fastp_out
+
+# 获取所有R1文件并提取样本名
+for r1_file in *_1.fastq.gz; do
+    # 提取样本名（去掉_1.fastq.gz）
+    sample=${r1_file%_1.fastq.gz}
+    
+    # 对应的R2文件
+    r2_file="${sample}_2.fastq.gz"
+    
+    echo "Processing $sample..."
+    echo "R1: $r1_file, R2: $r2_file"
+    
+    if [[ -f "$r2_file" ]]; then
+        fastp \
+            -i "$r1_file" \
+            -I "$r2_file" \
+            -o "fastp_out/${sample}_1.clean.fastq.gz" \
+            -O "fastp_out/${sample}_2.clean.fastq.gz" \
+            -W 4 -M 20 -q 15 -u 40 -3 -n 5 -c -l 50 -w 8 \
+            -h "fastp_out/${sample}.html" \
+            -j "fastp_out/${sample}.json"
+    else
+        echo "Warning: R2 file $r2_file not found for sample $sample"
+    fi
+done
+
 3.运行脚本
 bash fastp.sh
 
