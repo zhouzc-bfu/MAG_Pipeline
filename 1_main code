@@ -123,30 +123,34 @@ nano host_remove.sh
 ————————————————————————————————————————————————
 #!/bin/bash
 
-# ===============================
-# 批量去宿主脚本 (Bowtie2)
-# ===============================
+# 自动批量去宿主脚本 (Bowtie2)
+# 宿主：Donkey
 
-# 宿主索引路径
-INDEX=/data/gxa3001s19/project/1_MAG_desert/analysis/2_host.remove_bowtie2/genomes/camel/camel_index
+# Donkey宿主索引前缀（一定要和bt2文件前缀一致）
+INDEX=/data/gxa3001s19/project/1_MAG_desert/analysis/2_host.remove_bowtie2/host_genomes/donkey/donkey_index
 
-# 样本列表
-SAMPLES="SRR13390162 SRR13390163 SRR13390164 SRR13390170 SRR13390171 SRR13390172"
-
-# CPU 核心数（根据机器调整，单样本8核）
+# CPU 核心数
 THREADS=8
 
-for sample in $SAMPLES
+# 自动识别当前文件夹中所有 _1.clean.fastq.gz
+for f in *_1.clean.fastq.gz
 do
+    sample=${f%%_1.clean.fastq.gz}
+    R1=${sample}_1.clean.fastq.gz
+    R2=${sample}_2.clean.fastq.gz
+
     echo ">>> Processing $sample ..."
-    
+    echo "    R1 = $R1"
+    echo "    R2 = $R2"
+
     bowtie2 -x $INDEX \
-        -1 ${sample}_1.clean.fastq.gz -2 ${sample}_2.clean.fastq.gz \
+        -1 $R1 -2 $R2 \
         --very-sensitive -p $THREADS \
         --un-conc-gz ${sample}_%.nohost.clean.fastq.gz \
         2> ${sample}_bowtie2.log
-    
+
     echo ">>> Done: $sample"
+    echo
 done
 —————————————————————————————————————————————————
 #运行脚本
