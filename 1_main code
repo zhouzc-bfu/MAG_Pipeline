@@ -124,7 +124,7 @@ nano host_remove.sh
 #!/bin/bash
 
 # 记录开始时间
-echo "Script start: $(date)"
+echo "Start time: $(date)"
 
 # 自动批量去宿主脚本 (Bowtie2)
 # 宿主：Donkey
@@ -157,7 +157,7 @@ do
 done
 
 # 记录结束时间
-echo "Script end: $(date)"
+echo "End time: $(date)"
 —————————————————————————————————————————————————
 #运行脚本
 bash host_remove.sh
