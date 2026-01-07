@@ -178,3 +178,5 @@ bowtie2-build final.contigs.fasta contigs_index
 bowtie2 -x contigs_index -1 reads_1.fastq.gz -2 reads_2.fastq.gz -S samplename.sam
 
 3.SAM 转 BAM 并排序、建索引
+samtools view -bS samplename.sam > samplename.bam
+samtools sort samplename.bam -o samplename.sorted.bam
