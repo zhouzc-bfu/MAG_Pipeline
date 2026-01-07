@@ -30,7 +30,7 @@ ascp -v -Q -T -l 500m -P 33001 -k 1 -i ~/.aspera/connect/etc/asperaweb_id_dsa.op
 
 # 弹出填写密码即把第4步所获密码复制进去即可
 
-二、fastp数据质控
+二、fastp(v1.0.1)数据质控
 
 1.安装fastp
 # bioconda可以安装，但一般不是最新版，推荐采用wget安装（fastp的Github官网有教程，如下）
@@ -78,7 +78,7 @@ done
 3.运行脚本
 bash fastp.sh
 
-三、Bowtie2去宿主
+三、Bowtie2(v2.5.4)去宿主
 
 1.安装bowtie2
 #下载 Bowtie2 2.5.4 官方二进制（替换所需版本号）
@@ -162,14 +162,14 @@ echo "End time: $(date)"
 #运行脚本
 bash host_remove.sh
 
-四、Megahit组装
+四、Megahit(v1.2.9)组装
 1.安装Megahit
 conda install -c bioconda megahit
 
 2.运行Megahit对去宿主后序列进行组装（示例单样本组装）
 megahit -1 SRR13390162_1.nohost.clean.fastq.gz -2 SRR13390162_2.nohost.clean.fastq.gz -o ./megahit_out -t 16 --min-contig-len 1000
 
-五、MetaBAT2分箱（单样本分箱中表现最佳：Extensive Unexplored Human Microbiome Diversity Revealed by Over 150,000 Genomes from Metagenomes Spanning Age, Geography, and Lifestyle.（Cell））
+五、MetaBAT2(v2.18)分箱（单样本分箱中表现最佳：Extensive Unexplored Human Microbiome Diversity Revealed by Over 150,000 Genomes from Metagenomes Spanning Age, Geography, and Lifestyle.（Cell））
 # 流程可参考：https://blog.csdn.net/Asa12138/article/details/139424386
 1.用 Bowtie2 构建 contig 索引
 bowtie2-build final.contigs.fasta contigs_index
@@ -177,6 +177,7 @@ bowtie2-build final.contigs.fasta contigs_index
 2.将 clean reads 比对到 contig
 bowtie2 -x contigs_index -1 reads_1.fastq.gz -2 reads_2.fastq.gz -S samplename.sam
 
-3.SAM 转 BAM 并排序、建索引
+3.SAM 转 BAM 并排序、建索引 # samtoos版本：v1.21
 samtools view -bS samplename.sam > samplename.bam
 samtools sort samplename.bam -o samplename.sorted.bam
+samtools index samplename.sorted.bam
