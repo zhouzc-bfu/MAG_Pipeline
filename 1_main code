@@ -169,19 +169,12 @@ conda install -c bioconda megahit
 2.运行Megahit对去宿主后序列进行组装（示例单样本组装）
 megahit -1 SRR13390162_1.nohost.clean.fastq.gz -2 SRR13390162_2.nohost.clean.fastq.gz -o ./megahit_out -t 16 --min-contig-len 1000
 
-五、MetaWRAP分箱（综合三种分箱方法取最优）
-1.安装metaWRAP
-conda create -n metawrap python=2.7
-source activate metawrap
+五、MetaBAT2分箱（单样本分箱中表现最佳：Extensive Unexplored Human Microbiome Diversity Revealed by Over 150,000 Genomes from Metagenomes Spanning Age, Geography, and Lifestyle.（Cell））
+# 流程可参考：https://blog.csdn.net/Asa12138/article/details/139424386
+1.用 Bowtie2 构建 contig 索引
+bowtie2-build final.contigs.fasta contigs_index
 
-# ORDER IS IMPORTANT!!!
-conda config --add channels defaults
-conda config --add channels conda-forge
-conda config --add channels bioconda
-conda config --add channels ursky
+2.将 clean reads 比对到 contig
+bowtie2 -x contigs_index -1 reads_1.fastq.gz -2 reads_2.fastq.gz -S samplename.sam
 
-conda install -c ursky metawrap-mg
-
-2.运行分箱命令
-metawrap binning -o BINNING_SRR13390163 -t 24 -m 80 -a SRR13390163_megahit_out/final.contigs.fa --metabat2 --maxbin2 --concoct SRR13390163_nohost.clean_1.fastq SRR13390163_nohost.clean_2.fastq
-#注意这里原始reads文件的后缀一定要是_1.fastq和_2.fastq，否则会报错
+3.SAM 转 BAM 并排序、建索引
