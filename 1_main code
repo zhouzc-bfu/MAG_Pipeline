@@ -188,3 +188,12 @@ jgi_summarize_bam_contig_depths --outputDepth samplename.depth.txt samplename.so
 
 5.运行 MetaBAT2 进行分箱
 metabat2 -i final.contigs.fasta -a samplename.depth.txt -o samplename_bins/bin -t 24
+
+6.CheckM(v1.2.4)评估bin质量
+# 参考官网安装CheckM及依赖项：https://github.com/Ecogenomics/CheckM/wiki
+
+# 使用 lineage_wf 工作流程来评估基因组分箱
+checkm lineage_wf -x fa samplename_bins/ samplename_checkm_out/ -t 24
+
+# 导出结果报告
+checkm qa samplename_checkm_out/lineage.ms samplename_checkm_out/ -o 2 > checkm_report.txt
