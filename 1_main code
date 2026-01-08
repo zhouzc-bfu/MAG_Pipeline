@@ -181,3 +181,10 @@ bowtie2 -x contigs_index -1 reads_1.fastq.gz -2 reads_2.fastq.gz -S samplename.s
 samtools view -bS samplename.sam > samplename.bam
 samtools sort samplename.bam -o samplename.sorted.bam
 samtools index samplename.sorted.bam
+
+4.计算 contig 覆盖度（MetaBAT2 需要）
+MetaBAT2 官方提供 jgi_summarize_bam_contig_depths：
+jgi_summarize_bam_contig_depths --outputDepth samplename.depth.txt samplename.sorted.bam
+
+5.运行 MetaBAT2 进行分箱
+metabat2 -i final.contigs.fasta -a samplename.depth.txt -o samplename_bins/bin -t 24
