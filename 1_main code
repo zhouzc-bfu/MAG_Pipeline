@@ -164,7 +164,7 @@ bash host_remove.sh
 conda install -c bioconda megahit
 
 2.运行Megahit对去宿主后序列进行组装（示例单样本组装）
-megahit -1 SRR13390162_1.nohost.clean.fastq.gz -2 SRR13390162_2.nohost.clean.fastq.gz -o ./megahit_out -t 16 --min-contig-len 1000
+megahit -1 SRR13390162_1.nohost.clean.fastq.gz -2 SRR13390162_2.nohost.clean.fastq.gz -o ./megahit_out -t 20 --min-contig-len 1000
 
 五、MetaBAT2(v2.18)分箱
 # 在单样本分箱中MetaBAT2具有最佳性能，参考文献：10.1016/j.cell.2019.01.001（Cell）→10.1186/s40168-018-0541-1（Microbiome）
