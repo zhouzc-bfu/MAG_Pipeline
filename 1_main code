@@ -1,5 +1,4 @@
 一、SRA原始数据下载（aspera高速下载）
-
 1.下载aspera安装包到本地并上传至服务器
 
 2.安装aspera
@@ -31,7 +30,6 @@ ascp -v -Q -T -l 500m -P 33001 -k 1 -i ~/.aspera/connect/etc/asperaweb_id_dsa.op
 # 弹出填写密码即把第4步所获密码复制进去即可
 
 二、fastp(v1.0.1)数据质控
-
 1.安装fastp
 # bioconda可以安装，但一般不是最新版，推荐采用wget安装（fastp的Github官网有教程，如下）
 # download the latest build
@@ -79,7 +77,6 @@ done
 bash fastp.sh
 
 三、Bowtie2(v2.5.4)去宿主
-
 1.安装bowtie2
 #下载 Bowtie2 2.5.4 官方二进制（替换所需版本号）
 wget https://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.5.4/bowtie2-2.5.4-linux-x86_64.zip
@@ -169,7 +166,8 @@ conda install -c bioconda megahit
 2.运行Megahit对去宿主后序列进行组装（示例单样本组装）
 megahit -1 SRR13390162_1.nohost.clean.fastq.gz -2 SRR13390162_2.nohost.clean.fastq.gz -o ./megahit_out -t 16 --min-contig-len 1000
 
-五、MetaBAT2(v2.18)分箱（单样本分箱中表现最佳：Extensive Unexplored Human Microbiome Diversity Revealed by Over 150,000 Genomes from Metagenomes Spanning Age, Geography, and Lifestyle.（Cell））
+五、MetaBAT2(v2.18)分箱
+# 在单样本分箱中MetaBAT2具有最佳性能，参考文献：10.1016/j.cell.2019.01.001（Cell）→10.1186/s40168-018-0541-1（Microbiome）
 # 流程可参考：https://blog.csdn.net/Asa12138/article/details/139424386
 1.用 Bowtie2 构建 contig 索引
 bowtie2-build final.contigs.fasta contigs_index
@@ -189,22 +187,22 @@ jgi_summarize_bam_contig_depths --outputDepth samplename.depth.txt samplename.so
 5.运行 MetaBAT2 进行分箱
 metabat2 -i final.contigs.fasta -a samplename.depth.txt -o samplename_bins/bin -t 24
 
-6.CheckM(v1.2.4)评估bin质量
-# 参考官网安装CheckM及依赖项：https://github.com/Ecogenomics/CheckM/wiki
+六、CheckM(v1.2.4)评估bin质量
+1.参考官网安装CheckM及依赖项：https://github.com/Ecogenomics/CheckM/wiki
 
-# 使用 lineage_wf 工作流程来评估基因组分箱
+2.使用 lineage_wf 工作流程来评估基因组分箱
 checkm lineage_wf -x fa samplename_bins/ samplename_checkm_out/ -t 24
 
-# 导出结果报告
+3.导出结果报告
 checkm qa samplename_checkm_out/lineage.ms samplename_checkm_out/ -o 2 > checkm_report.txt
 
-*7.CheckM2(v1.1.0)评估bin质量（该步与CheckM可选，CheckM2采用的是机器学习的方式）
-# 安装CheckM2
+## CheckM2(v1.1.0)评估bin质量（该步与CheckM可选，CheckM2采用的是机器学习的方式）
+1.安装CheckM2
 参考官网：https://github.com/chklovski/CheckM2
 
-# 运行checkm2进行分箱质量评估
+2.运行checkm2进行分箱质量评估
 checkm2 predict --threads 30 --input samplename_bins --output-directory samplename_checkm2_out -x fa
 
-# 查看结果报告
+3.查看结果报告
 # 结果报告为quality_report.tsv，为方便阅读，我们按照Completeness（第2列）排序查看:
 (head -1 quality_report.tsv && tail -n +2 quality_report.tsv | sort -t$'\t' -k2,2nr) | less
