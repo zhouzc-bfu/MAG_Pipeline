@@ -197,3 +197,14 @@ checkm lineage_wf -x fa samplename_bins/ samplename_checkm_out/ -t 24
 
 # 导出结果报告
 checkm qa samplename_checkm_out/lineage.ms samplename_checkm_out/ -o 2 > checkm_report.txt
+
+*7.CheckM2(v1.1.0)评估bin质量（该步与CheckM可选，CheckM2采用的是机器学习的方式）
+# 安装CheckM2
+参考官网：https://github.com/chklovski/CheckM2
+
+# 运行checkm2进行分箱质量评估
+checkm2 predict --threads 30 --input samplename_bins --output-directory samplename_checkm2_out -x fa
+
+# 查看结果报告
+# 结果报告为quality_report.tsv，为方便阅读，我们按照Completeness（第2列）排序查看:
+(head -1 quality_report.tsv && tail -n +2 quality_report.tsv | sort -t$'\t' -k2,2nr) | less
