@@ -1,2 +1,0 @@
-# 查看自己（h007）所有进程使用内存总量（单位GB）:
-ps -u h007 -o rss --no-headers | awk '{sum+=$1} END {print sum/1024/1024" GB"}'

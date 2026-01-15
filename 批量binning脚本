@@ -1,0 +1,98 @@
+#!/bin/bash
+set -euo pipefail
+
+# ======================
+# 参数设置
+# ======================
+THREADS=20
+
+# ======================
+# 主循环：遍历所有样本
+# ======================
+for R1 in *.nohost.clean_1.fastq.gz; do
+
+    # 提取样本名（SRRxxxxxx）
+    SAMPLE=$(basename "$R1" .nohost.clean_1.fastq.gz)
+    R2=${SAMPLE}.nohost.clean_2.fastq.gz
+    MEGAHIT_DIR=${SAMPLE}_megahit_out
+    CONTIGS=../${MEGAHIT_DIR}/final.contigs.fa
+    BINNING_DIR=${SAMPLE}_binning
+
+    echo "========================================"
+    echo "Processing sample: $SAMPLE"
+    echo "========================================"
+
+    # 创建 binning 目录
+    mkdir -p "$BINNING_DIR"
+    cd "$BINNING_DIR"
+
+    # ======================
+    # 1. 构建 contig 索引
+    # ======================
+    if [[ ! -f contigs_index.1.bt2 ]]; then
+        echo "[1/5] Building Bowtie2 index"
+        bowtie2-build "$CONTIGS" contigs_index
+    else
+        echo "[1/5] Bowtie2 index already exists, skipping"
+    fi
+
+    # ======================
+    # 2. reads 比对到 contigs
+    # ======================
+    if [[ ! -f ${SAMPLE}.sam ]]; then
+        echo "[2/5] Mapping reads to contigs"
+        bowtie2 \
+            -x contigs_index \
+            -1 "../$R1" \
+            -2 "../$R2" \
+            -S ${SAMPLE}.sam \
+            -p $THREADS
+    else
+        echo "[2/5] SAM file exists, skipping"
+    fi
+
+    # ======================
+    # 3. SAM → BAM → sort → index
+    # ======================
+    if [[ ! -f ${SAMPLE}.sorted.bam ]]; then
+        echo "[3/5] Converting and sorting BAM"
+        samtools view -bS ${SAMPLE}.sam > ${SAMPLE}.bam
+        samtools sort ${SAMPLE}.bam -o ${SAMPLE}.sorted.bam
+        samtools index ${SAMPLE}.sorted.bam
+        rm -f ${SAMPLE}.sam ${SAMPLE}.bam #若想实行断点续跑，此步得删除，加上该步为节省磁盘空间
+    else
+        echo "[3/5] Sorted BAM exists, skipping"
+    fi
+
+    # ======================
+    # 4. 计算 contig depth
+    # ======================
+    if [[ ! -f ${SAMPLE}.depth.txt ]]; then
+        echo "[4/5] Calculating contig depth"
+        jgi_summarize_bam_contig_depths \
+            --outputDepth ${SAMPLE}.depth.txt \
+            ${SAMPLE}.sorted.bam
+    else
+        echo "[4/5] Depth file exists, skipping"
+    fi
+
+    # ======================
+    # 5. MetaBAT2 分箱
+    # ======================
+    if [[ ! -d bins ]]; then
+        echo "[5/5] Running MetaBAT2"
+        metabat2 \
+            -i "$CONTIGS" \
+            -a ${SAMPLE}.depth.txt \
+            -o ${SAMPLE}_bins/bin \
+            -t $THREADS
+    else
+        echo "[5/5] MetaBAT2 bins already exist, skipping"
+    fi
+
+    cd ..
+    echo "Finished sample: $SAMPLE"
+    echo
+done
+
+echo "All samples processed."
