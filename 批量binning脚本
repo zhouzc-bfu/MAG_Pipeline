@@ -96,7 +96,7 @@ for R1 in *.nohost.clean_1.fastq.gz; do
         metabat2 \
             -i "$CONTIGS" \
             -a ${SAMPLE}.depth.txt \
-            -o ${SAMPLE}_bins_1500/${SAMPLE}_bin \
+            -o ${SAMPLE}_bins_1500/bin \
             -t $THREADS \
             -m 1500
     else
