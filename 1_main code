@@ -179,6 +179,12 @@ bowtie2-build final.contigs.fasta contigs_index
 2.将 clean reads 比对到 contig
 bowtie2 -x contigs_index -1 reads_1.fastq.gz -2 reads_2.fastq.gz -S ${samplename}.sam -p 20
 # 注意：reads文件后缀必须统一成*_1.fastq.gz/*_2.fastq.gz格式（fastq扩展名的fq也可以）
+# 改名命令：
+rename -n 's/_1\.nohost\.clean\.fastq\.gz$/\.nohost\.clean_1.fastq.gz/' *_1.nohost.clean.fastq.gz #先预览
+rename 's/_1\.nohost\.clean\.fastq\.gz$/\.nohost\.clean_1.fastq.gz/' *_1.nohost.clean.fastq.gz #确认后执行
+rename -n 's/_2\.nohost\.clean\.fastq\.gz$/\.nohost\.clean_2.fastq.gz/' *_2.nohost.clean.fastq.gz #先预览
+rename 's/_2\.nohost\.clean\.fastq\.gz$/\.nohost\.clean_2.fastq.gz/' *_2.nohost.clean.fastq.gz #确认后执行
+
 
 3.SAM 转 BAM 并排序、建索引 # samtoos版本：v1.21
 samtools view -bS ${samplename}.sam > ${samplename}.bam
