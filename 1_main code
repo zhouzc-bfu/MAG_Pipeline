@@ -190,13 +190,13 @@ MetaBAT2 官方提供 jgi_summarize_bam_contig_depths：
 jgi_summarize_bam_contig_depths --outputDepth ${samplename}.depth.txt ${samplename}.sorted.bam
 
 5.运行 MetaBAT2 进行分箱
-metabat2 -i final.contigs.fasta -a ${samplename}.depth.txt -o ${samplename}_bins/bin -t 24
+metabat2 -i final.contigs.fasta -a ${samplename}.depth.txt -o ${samplename}_bins/bin -t 20
 
 六、CheckM(v1.2.4)评估bin质量
 1.参考官网安装CheckM及依赖项：https://github.com/Ecogenomics/CheckM/wiki
 
 2.使用 lineage_wf 工作流程来评估基因组分箱
-checkm lineage_wf -x fa ${samplename}_bins/ ${samplename}_checkm_out/ -t 24
+checkm lineage_wf -x fa ${samplename}_bins/ ${samplename}_checkm_out/ -t 20
 
 3.导出结果报告
 checkm qa ${samplename}_checkm_out/lineage.ms ${samplename}_checkm_out/ -o 2 > ${samplename}checkm_report.txt
@@ -206,7 +206,7 @@ checkm qa ${samplename}_checkm_out/lineage.ms ${samplename}_checkm_out/ -o 2 > $
 参考官网：https://github.com/chklovski/CheckM2
 
 2.运行checkm2进行分箱质量评估
-checkm2 predict --threads 30 --input ${samplename}_bins --output-directory ${samplename}_checkm2_out -x fa
+checkm2 predict --threads 20 --input ${samplename}_bins --output-directory ${samplename}_checkm2_out -x fa
 
 3.查看结果报告
 # 结果报告为quality_report.tsv，为方便阅读，我们按照Completeness（第2列）排序查看:
