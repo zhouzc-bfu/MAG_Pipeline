@@ -89,6 +89,19 @@ for R1 in *.nohost.clean_1.fastq.gz; do
     else
         echo "[5/5] MetaBAT2 bins already exist, skipping"
     fi
+    
+    # 新增 bins_1500
+    if [[ ! -d ${SAMPLE}_bins_1500 ]]; then
+        echo "[5/5] Running MetaBAT2 (-m 1500)"
+        metabat2 \
+            -i "$CONTIGS" \
+            -a ${SAMPLE}.depth.txt \
+            -o ${SAMPLE}_bins_1500/${SAMPLE}_bin \
+            -t $THREADS \
+            -m 1500
+    else
+        echo "[5/5] MetaBAT2 bins_1500 already exist, skipping"
+    fi
 
     cd ..
     echo "Finished sample: $SAMPLE"
