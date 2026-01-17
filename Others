@@ -1,0 +1,8 @@
+1.快速查看bins文件夹中bin的数量（查看文件夹数量）：
+#查看每个样本的bin数量
+find *binning/*bins -type f -printf '%h\n' | sort | uniq -c
+#查看总数量
+find *binning/*bins -type f | wc -l
+
+2.查看每个bins文件夹的大小与总大小：
+du -shc *binning/*bins
