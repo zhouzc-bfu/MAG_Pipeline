@@ -195,8 +195,8 @@ samtools index ${samplename}.sorted.bam
 MetaBAT2 官方提供 jgi_summarize_bam_contig_depths：
 jgi_summarize_bam_contig_depths --outputDepth ${samplename}.depth.txt ${samplename}.sorted.bam
 
-5.运行 MetaBAT2 进行分箱
-metabat2 -i final.contigs.fasta -a ${samplename}.depth.txt -o ${samplename}_bins/bin -t 20
+5.运行 MetaBAT2 进行分箱(选择最小contigs长度为1500)
+metabat2 -i final.contigs.fasta -a ${samplename}.depth.txt -o ${samplename}_bins/bin -m 1500 -t 20
 
 六、CheckM(v1.2.4)评估bin质量
 1.参考官网安装CheckM及依赖项：https://github.com/Ecogenomics/CheckM/wiki
