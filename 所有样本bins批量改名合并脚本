@@ -1,0 +1,65 @@
+# ==============================================
+# 第一步：创建总目录（存放所有合并后的bins）
+# ==============================================
+mkdir -p ~/project/1_MAG_desert/analysis/all_merged_bins
+
+# ==============================================
+# 第二步：遍历所有宿主物种、所有样本，复制并改名bins
+# ==============================================
+# 定义宿主物种列表（和你的目录名一致）
+host_species=("camel" "donkey" "gg" "horse" "muskdeer" "mwa" "ph" "reddeer" "roedeer" "serow" "wildboar")
+
+# 遍历每个宿主物种
+for host in "${host_species[@]}"; do
+  # 定义宿主物种的根目录
+  host_dir=~/project/1_MAG_desert/analysis/2_host.remove_bowtie2/host_remove_data/${host}
+  
+  # 跳过不存在的目录（防止报错）
+  if [ ! -d "${host_dir}" ]; then
+    echo "警告：目录 ${host_dir} 不存在，跳过！"
+    continue
+  fi
+
+  # 遍历该宿主下的所有样本binning目录（如 SRR13390162_binning）
+  for sample_binning_dir in ${host_dir}/*_binning; do
+    # 提取样本名（如从 SRR13390162_binning 提取 SRR13390162）
+    sample_name=$(basename ${sample_binning_dir} | sed 's/_binning//g')
+    
+    # 定义该样本的bins_1500目录
+    bins_1500_dir=${sample_binning_dir}/${sample_name}_bins_1500
+    
+    # 跳过不存在的bins目录
+    if [ ! -d "${bins_1500_dir}" ]; then
+      echo "警告：目录 ${bins_1500_dir} 不存在，跳过！"
+      continue
+    fi
+
+    # 遍历该目录下的所有bin文件（排除BinInfo.txt）
+    for bin_file in ${bins_1500_dir}/bin.*.fa; do
+      # 跳过匹配不到的情况（防止空文件报错）
+      if [ ! -f "${bin_file}" ]; then
+        continue
+      fi
+      
+      # 提取bin编号（如从 bin.1.fa 提取 1）
+      bin_id=$(basename ${bin_file} | sed 's/bin.//g; s/.fa//g')
+      
+      # 新文件名：宿主_样本_bin编号.fa（如 camel_SRR13390162_1.fa）
+      new_bin_name="${host}_${sample_name}_${bin_id}.fa"
+      
+      # 复制并改名到总目录
+      cp ${bin_file} ~/project/1_MAG_desert/analysis/all_merged_bins/${new_bin_name}
+      
+      # 打印进度（可选，方便查看）
+      echo "已处理：${new_bin_name}"
+    done
+  done
+done
+
+# ==============================================
+# 第三步：验证结果（可选）
+# ==============================================
+echo "========================================"
+echo "合并完成！总bins数量：$(ls ~/project/1_MAG_desert/analysis/all_merged_bins/*.fa | wc -l)"
+echo "前5个bins示例："
+ls ~/project/1_MAG_desert/analysis/all_merged_bins/*.fa | head -5
