@@ -198,6 +198,8 @@ jgi_summarize_bam_contig_depths --outputDepth ${samplename}.depth.txt ${samplena
 5.运行 MetaBAT2 进行分箱(选择最小contigs长度为1500)
 metabat2 -i final.contigs.fasta -a ${samplename}.depth.txt -o ${samplename}_bins/bin -m 1500 -t 20
 
+## 对某物种下所有样本进行自动批量分箱脚本见“批量binning脚本”
+
 六、CheckM(v1.2.4)评估bin质量
 1.参考官网安装CheckM及依赖项：https://github.com/Ecogenomics/CheckM/wiki
 
