@@ -1,0 +1,49 @@
+#!/bin/bash
+# 保存为 run_checkm_batch.sh
+
+INPUT_DIR="all_merged_bins"
+OUTPUT_BASE="allbins_checkm"
+BATCH_SIZE=1000
+THREADS=16
+
+# 创建输出目录
+mkdir -p ${OUTPUT_BASE}/combined
+
+# 获取所有bin文件列表
+find ${INPUT_DIR} -name "*.fa" > all_bins.list
+
+# 计算总bin数
+TOTAL_BINS=$(wc -l < all_bins.list)
+echo "总共有 ${TOTAL_BINS} 个bins需要处理"
+echo "将分成 $(( (TOTAL_BINS + BATCH_SIZE - 1) / BATCH_SIZE )) 个批次"
+
+# 分割文件列表
+split -l ${BATCH_SIZE} all_bins.list batch_list_
+
+# 处理每个批次
+for batch_file in batch_list_*; do
+    BATCH_NAME=${batch_file#batch_list_}
+    echo "处理批次: ${BATCH_NAME}"
+    
+    # 创建临时目录
+    TEMP_DIR="tmp_bins_${BATCH_NAME}"
+    mkdir -p ${TEMP_DIR}
+    
+    # 复制该批次的所有bin
+    while read bin_path; do
+        cp "$bin_path" ${TEMP_DIR}/
+    done < ${batch_file}
+    
+    # 运行CheckM
+    checkm lineage_wf -x fa ${TEMP_DIR} ${OUTPUT_BASE}/batch_${BATCH_NAME} -t ${THREADS} --pplacer_threads 2
+    
+    # 清理临时文件
+    rm -rf ${TEMP_DIR}
+    
+    echo "批次 ${BATCH_NAME} 完成"
+done
+
+# 清理临时文件
+rm -f all_bins.list batch_list_*
+
+echo "所有批次处理完成！"
