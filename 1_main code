@@ -221,4 +221,7 @@ checkm2 predict --threads 20 --input ${samplename}_bins --output-directory ${sam
 (head -1 quality_report.tsv && tail -n +2 quality_report.tsv | sort -t$'\t' -k2,2nr) | less
 
 七、合并所有样本的bins进行CheckM质量评估，以及后续dRep去冗余处理
-#合并脚本见“所有样本bins批量改名合并脚本”
+# 合并脚本见“所有样本bins批量改名合并脚本”
+
+八、对所有bins进行checkm质量评估
+# 由于bin数量太多，一次运行会导致内存溢出报错，所以采用分批次运行，最后再合并，脚本见“分批次运行checkm脚本”
