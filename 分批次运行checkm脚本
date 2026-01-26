@@ -38,7 +38,7 @@ for batch_file in batch_list_*; do
     checkm lineage_wf -x fa ${TEMP_DIR} ${OUTPUT_BASE}/batch_${BATCH_NAME} -t ${THREADS} --pplacer_threads 2
     
     # 清理临时文件
-    rm -rf ${TEMP_DIR}
+    rm -rf ${TEMP_DIR} #该步清理可以等所有确定运行成功后再清理
     
     echo "批次 ${BATCH_NAME} 完成"
 done
@@ -47,3 +47,5 @@ done
 rm -f all_bins.list batch_list_*
 
 echo "所有批次处理完成！"
+
+# 注：如果运行过程中pplacer报错：ERROR: pplacer exited with code: 512，则有可能是由于该批次中有一个坏bins，导致程序崩溃，可进行二分排雷法，找出并剔除！
