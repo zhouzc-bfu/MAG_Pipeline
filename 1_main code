@@ -207,7 +207,7 @@ metabat2 -i final.contigs.fasta -a ${samplename}.depth.txt -o ${samplename}_bins
 checkm lineage_wf -x fa ${samplename}_bins/ ${samplename}_checkm_out/ -t 20
 
 3.导出结果报告
-checkm qa ${samplename}_checkm_out/lineage.ms ${samplename}_checkm_out/ -o 2 > ${samplename}checkm_report.txt
+checkm qa ${samplename}_checkm_out/lineage.ms ${samplename}_checkm_out/  -t 2 > ${samplename}checkm_report.txt
 
 ## CheckM2(v1.1.0)评估bin质量（该步与CheckM可选，CheckM2采用的是机器学习的方式）
 1.安装CheckM2
