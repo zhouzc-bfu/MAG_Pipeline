@@ -55,11 +55,3 @@ for host in "${host_species[@]}"; do
     done
   done
 done
-
-# ==============================================
-# 第三步：验证结果（可选）
-# ==============================================
-echo "========================================"
-echo "合并完成！总bins数量：$(ls ~/project/1_MAG_desert/analysis/all_merged_bins/*.fa | wc -l)"
-echo "前5个bins示例："
-ls ~/project/1_MAG_desert/analysis/all_merged_bins/*.fa | head -5
