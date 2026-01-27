@@ -225,3 +225,4 @@ checkm2 predict --threads 20 --input ${samplename}_bins --output-directory ${sam
 
 八、对所有bins进行checkm质量评估
 # 由于bin数量太多，一次运行会导致内存溢出报错，所以采用分批次运行，最后再合并，脚本见“分批次运行checkm脚本”
+# 分批次运行完后，再进行checkm qa分批次导出结果报告
