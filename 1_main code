@@ -238,8 +238,10 @@ $NF     ~ /^[0-9]+(\.[0-9]+)?$/ {
 ' batch_*_checkm_report.txt >> allbins_checkm.csv
 # 合并完后，需将genome列文件名加上.fa后缀，以满足dRep的checkm输入文件的要求：
 cp allbins_checkm/allbins_checkm.csv allbins_checkm/allbins_checkm.csv.bak # 备份原文件
-awk -F, 'NR==1{print; next} {print $1".fa,"$2","$3","$4}' allbins_checkm.csv.bak > allbins_checkm_fixed.csv # 给genome列加.fa
+awk -F, 'NR==1{print; next} {print $1".fa,"$2","$3","$4}' allbins_checkm.csv.bak > allbins_checkm_dRep.csv # 给genome列加.fa
 
 九、dRep(v3.6.2)对bins去冗余生成非冗余MAG集
 1.菌株级别去冗余（-sa 0.99）
-dRep dereplicate -p 64 allbins_dRep/ -g allbins_removebadbin/all_merged_bins/*.fa -pa 0.90 -sa 0.99 -nc 0.30 -cm larger --genomeInfo allbins_checkm/allbins_checkm_fixed.csv -comp 50 -con 5
+dRep dereplicate -p 64 allbins_dRep_0.99/ -g allbins_removebadbin/all_merged_bins/*.fa -pa 0.90 -sa 0.99 -nc 0.30 -cm larger --genomeInfo allbins_checkm/allbins_checkm_dRep.csv -comp 50 -con 5
+2.物种级别去冗余（-sa 0.95）
+dRep dereplicate -p 64 allbins_dRep_0.95/ -g allbins_removebadbin/all_merged_bins/*.fa -pa 0.90 -sa 0.95 -nc 0.30 -cm larger --genomeInfo allbins_checkm/allbins_checkm_dRep.csv -comp 50 -con 5
