@@ -228,7 +228,6 @@ checkm2 predict --threads 20 --input ${samplename}_bins --output-directory ${sam
 # 分批次运行完后，再进行checkm qa分批次导出结果报告
 # 合并所有批次的结果报告为dRep的输入csv文件：
 echo "genome,completeness,contamination,strain_heterogeneity" > allbins_checkm.csv
-
 awk '
 NF >= 3 &&
 $(NF-2) ~ /^[0-9]+(\.[0-9]+)?$/ &&
@@ -237,3 +236,10 @@ $NF     ~ /^[0-9]+(\.[0-9]+)?$/ {
     print $1","$(NF-2)","$(NF-1)","$NF
 }
 ' batch_*_checkm_report.txt >> allbins_checkm.csv
+# 合并完后，需将genome列文件名加上.fa后缀，以满足dRep的checkm输入文件的要求：
+cp allbins_checkm/allbins_checkm.csv allbins_checkm/allbins_checkm.csv.bak # 备份原文件
+awk -F, 'NR==1{print; next} {print $1".fa,"$2","$3","$4}' allbins_checkm.csv.bak > allbins_checkm_fixed.csv # 给genome列加.fa
+
+九、dRep(v3.6.2)对bins去冗余
+1.菌株级别去冗余（-sa 0.99）
+dRep dereplicate -p 64 allbins_dRep/ -g allbins_removebadbin/all_merged_bins/*.fa -pa 0.90 -sa 0.99 -nc 0.30 -cm larger --genomeInfo allbins_checkm/allbins_checkm_fixed.csv -comp 50 -con 5
