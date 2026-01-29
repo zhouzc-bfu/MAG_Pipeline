@@ -26,16 +26,16 @@ for host in "${host_species[@]}"; do
     sample_name=$(basename ${sample_binning_dir} | sed 's/_binning//g')
     
     # 定义该样本的bins_1500目录
-    bins_1500_dir=${sample_binning_dir}/${sample_name}_bins_1500
+    bins_dir=${sample_binning_dir}/${sample_name}_bins
     
     # 跳过不存在的bins目录
-    if [ ! -d "${bins_1500_dir}" ]; then
-      echo "警告：目录 ${bins_1500_dir} 不存在，跳过！"
+    if [ ! -d "${bins_dir}" ]; then
+      echo "警告：目录 ${bins_dir} 不存在，跳过！"
       continue
     fi
 
     # 遍历该目录下的所有bin文件（排除BinInfo.txt）
-    for bin_file in ${bins_1500_dir}/bin.*.fa; do
+    for bin_file in ${bins_dir}/bin.*.fa; do
       # 跳过匹配不到的情况（防止空文件报错）
       if [ ! -f "${bin_file}" ]; then
         continue
