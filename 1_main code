@@ -249,4 +249,4 @@ dRep dereplicate -p 64 allbins_dRep_0.95/ -g allbins_removebadbin/all_merged_bin
 十、GTDBtk(v2.6.1)对MAGs物种注释
 1.conda安装gtdbtk，并按提示下载gtdbtk数据库，并配置数据库路径
 2.对物种级基因组bins(SGBs)进行物种注释
-gtdbtk classify_wf --cpus {threads} --genome_dir {params.indir} --out_dir {params.outdir} -x fa
+gtdbtk classify_wf --genome_dir 4_binnning_metabat2/allbins_dRep_0.95/dereplicated_genomes/ --out_dir gtdbtk_r226_out -x fa --cpus 32 --pplacer_cpus 2
