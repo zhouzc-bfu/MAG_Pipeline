@@ -1,8 +1,14 @@
-1.快速查看bins文件夹中bin的数量（查看文件夹数量）：
+1.查看自己总共用了多少CPU：
+ps -u h007 -o %cpu= | awk '{sum+=$1} END {printf "h007 total CPU: %.1f cores\n", sum/100}'
+
+2.查看自己总共用了多少内存：
+ps -u h007 -o rss= | awk '{sum+=$1} END {printf "h007 total RSS: %.2f GB\n", sum/1024/1024}'
+
+3.快速查看bins文件夹中bin的数量（查看文件夹数量）：
 #查看每个样本的bin数量
 find *binning/*bins -type f -printf '%h\n' | sort | uniq -c
 #查看总数量
 find *binning/*bins -type f | wc -l
 
-2.查看每个bins文件夹的大小与总大小：
+4.查看每个bins文件夹的大小与总大小：
 du -shc *binning/*bins
