@@ -252,6 +252,6 @@ dRep dereplicate -p 64 allbins_dRep_0.95/ -g allbins_removebadbin/all_merged_bin
 gtdbtk classify_wf --genome_dir 4_binnning_metabat2/allbins_dRep_0.95/dereplicated_genomes/ --out_dir gtdbtk_r226_out -x fa --cpus 32 --pplacer_cpus 2
 
 十一、CoverM(v0.7.0)对计算每个样本的SGBs覆盖度（丰度）
-TMPDIR=./tmp coverm genome --genome-fasta-directory 4_binnning_metabat2/allbins_dRep_0.95/dereplicated_genomes/ --genome-fasta-extension fa --coupled ~/project/1_MAG_desert/rawdata/ks/goitered_gazelle/*raw.fastq.gz --methods tpm -t 30 -o gg_checkm_tsv
+TMPDIR=./tmp coverm genome --genome-fasta-directory 4_binnning_metabat2/allbins_dRep_0.95/dereplicated_genomes/ --genome-fasta-extension fa --coupled 2_host.remove_bowtie2/host_remove_data/gg/*.fastq.gz --methods tpm -t 30 -o gg_checkm_tsv
 # 注意先在自己文件夹中创建一个暂存文件夹tmp，并通过 TMPDIR=/path/to/your/tmp 命令指定暂存文件夹位置，否则coverm会默认将暂存文件夹放在系统盘，可能会被系统查杀
 # --methods tpm 该参数比较重要，表示覆盖度（丰度）的计算方法，这里选用tmp(转录组每百万reads数)，该方法可标准化丰度，消除不用样本测序深度与MAG长度的影响，为当前最好选择。该参数也可同时指定多种计算方法，例如: --methods tmp rpkm mean
