@@ -279,3 +279,5 @@ NR==1 {
 ' gg_coverm.tsv > gg_coverm_TPM.tsv
 
 十二、PhyloPhlAn(v3.1.68)构建SGBs系统发育树
+1.生成配置文件
+phylophlan_write_config_file -o supermatrix_aa.cfg -d a --db_aa diamond --map_dna diamond --map_aa diamond --msa mafft --trim trimal --tree1 fasttree --tree2 raxml --verbose
