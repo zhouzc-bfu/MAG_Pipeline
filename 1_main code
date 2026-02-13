@@ -281,3 +281,5 @@ NR==1 {
 十二、PhyloPhlAn(v3.1.68)构建SGBs系统发育树
 1.生成配置文件
 phylophlan_write_config_file -o supermatrix_aa.cfg -d a --db_aa diamond --map_dna diamond --map_aa diamond --msa mafft --trim trimal --tree1 fasttree --tree2 raxml --verbose
+2.运行
+phylophlan -i ../4_binnning_metabat2/allbins_dRep_0.95/dereplicated_genomes/ -d phylophlan -f supermatrix_aa.cfg --diversity high --fast -o phylophlan_tree --nproc 40 --verbose 2>&1 | tee phylophlan.log
