@@ -277,3 +277,5 @@ NR==1 {
   print out
 }
 ' gg_coverm.tsv > gg_coverm_TPM.tsv
+
+十二、PhyloPhlAn(v3.1.68)构建SGBs系统发育树
