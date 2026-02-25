@@ -283,3 +283,5 @@ NR==1 {
 phylophlan_write_config_file -o supermatrix_aa.cfg -d a --db_aa diamond --map_dna diamond --map_aa diamond --msa mafft --trim trimal --tree1 fasttree --tree2 raxml --verbose
 2.运行
 phylophlan -i ../4_binnning_metabat2/allbins_dRep_0.95/dereplicated_genomes/ -d phylophlan -f supermatrix_aa.cfg --diversity high --fast -o phylophlan_tree --genome_extension ".fa" --nproc 100 --verbose 2>&1 | tee phylophlan.log
+3.树ITOL(v7.4.2)可视化
+# 见itol_tree.py脚本，将生成的文件依次拖入itol即可
