@@ -198,7 +198,7 @@ jgi_summarize_bam_contig_depths --outputDepth ${samplename}.depth.txt ${samplena
 5.运行 MetaBAT2 进行分箱(选择最小contigs长度为1500)
 metabat2 -i final.contigs.fasta -a ${samplename}.depth.txt -o ${samplename}_bins/bin -m 1500 -t 20
 
-## 对某物种下所有样本进行自动批量分箱脚本见“批量binning脚本”
+## 对某物种下所有样本进行自动批量分箱脚本见“1.1_批量binning脚本”
 
 六、CheckM(v1.2.4)评估bin质量
 1.参考官网安装CheckM及依赖项：https://github.com/Ecogenomics/CheckM/wiki
@@ -221,10 +221,10 @@ checkm2 predict --threads 20 --input ${samplename}_bins --output-directory ${sam
 (head -1 quality_report.tsv && tail -n +2 quality_report.tsv | sort -t$'\t' -k2,2nr) | less
 
 七、合并所有样本的bins进行CheckM质量评估，以及后续dRep去冗余处理
-# 合并脚本见“所有样本bins批量改名合并脚本”
+# 合并脚本见“1.2_所有样本bins批量改名合并脚本”
 
 八、对所有bins进行checkm质量评估
-# 由于bin数量太多，一次运行会导致内存溢出报错，所以采用分批次运行，最后再合并，脚本见“分批次运行checkm脚本”
+# 由于bin数量太多，一次运行会导致内存溢出报错，所以采用分批次运行，最后再合并，脚本见“1.3_分批次运行checkm脚本”
 # 分批次运行完后，再进行checkm qa分批次导出结果报告
 # 合并所有批次的结果报告为dRep的输入csv文件：
 echo "genome,completeness,contamination,strain_heterogeneity" > allbins_checkm.csv
@@ -284,4 +284,4 @@ phylophlan_write_config_file -o supermatrix_aa.cfg -d a --db_aa diamond --map_dn
 2.运行
 phylophlan -i ../4_binnning_metabat2/allbins_dRep_0.95/dereplicated_genomes/ -d phylophlan -f supermatrix_aa.cfg --diversity high --fast -o phylophlan_tree --genome_extension ".fa" --nproc 100 --verbose 2>&1 | tee phylophlan.log
 3.树ITOL(v7.4.2)可视化
-# 见itol_tree.py脚本，将生成的文件依次拖入itol即可
+# 运行“1.4_ITOL美化树脚本”，将生成的文件依次拖入itol即可
