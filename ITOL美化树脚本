@@ -1,0 +1,104 @@
+import pandas as pd
+from ete3 import Tree
+
+# ==========================================
+# 🎨 配色方案：Nature 核心 + 辅助 + Others 灰
+# ==========================================
+
+# 1. Nature (NPG) 官方标准色 (Top 1-10)
+NPG_TOP10 = [
+    "#E64B35", "#4DBBD5", "#00A087", "#3C5488", "#F39B7F",
+    "#8491B4", "#91D1C2", "#DC0000", "#7E6148", "#B09C85"
+]
+
+# 2. 相同风格的辅助色 (Top 11-20)
+SUPP_10 = [
+    "#3B4992", "#EE0000", "#008B45", "#631879", "#008280",
+    "#BB0021", "#5F559B", "#A20056", "#1F77B4", "#FF7F0E"
+]
+
+# 3. 其他分类的颜色 (Others)
+OTHER_COLOR = "#D9D9D9"  # 浅灰色
+
+# 合并色板
+FULL_PALETTE = NPG_TOP10 + SUPP_10
+# ==========================================
+
+# --- 1. 数据统计 ---
+df_bac = pd.read_csv("5_classification_gtdbtk/gtdbtk.bac120.summary.tsv", sep='\t')
+df_arc = pd.read_csv("5_classification_gtdbtk/gtdbtk.ar53.summary.tsv", sep='\t')
+df = pd.concat([df_bac, df_arc])
+df['user_genome'] = df['user_genome'].str.replace('.fa', '', regex=False).str.replace('.fasta', '', regex=False)
+
+def get_phylum(x):
+    if pd.isna(x) or ';' not in str(x): return "Unclassified"
+    try: return x.split(';')[1].split('__')[1]
+    except: return "Unclassified"
+df['phylum'] = df['classification'].apply(get_phylum)
+
+top20_names = df['phylum'].value_counts().head(20).index.tolist()
+color_map = {name: FULL_PALETTE[i] for i, name in enumerate(top20_names)}
+
+# 建立 ID 索引
+style_dict = {}
+for _, row in df.iterrows():
+    gid = row['user_genome']
+    p = row['phylum']
+    if p in top20_names:
+        style_dict[gid] = (p, color_map[p])
+    else:
+        style_dict[gid] = ("Others", OTHER_COLOR)
+
+# --- 2. 处理进化树 ---
+t = Tree("7_phylogenetic_tree_phylophlan/phylophlan_tree/RAxML_bestTree.dereplicated_genomes_refined.tre")
+
+def propagate(node):
+    if node.is_leaf():
+        val = style_dict.get(node.name) or style_dict.get(node.name.replace('.fa',''))
+        if val:
+            node.add_feature("c", val[1])
+            return val[1]
+        return None
+    else:
+        child_c = [propagate(child) for child in node.children]
+        valid = [x for x in child_c if x]
+        # 【关键修正】：
+        # 如果所有子节点颜色一致（包括都是灰色），则向上涂色
+        if valid and all(x == valid[0] for x in valid) and len(valid) == len(child_c):
+            node.add_feature("c", valid[0])
+            return valid[0]
+        # 如果子节点颜色不一致（即到了不同门的分叉处），返回 None
+        # 返回 None 会导致这个祖先节点没有 'c' 属性，iTOL 就会默认显示为黑色
+        return None
+
+propagate(t)
+
+# 命名内部节点
+counter = 0
+for n in t.traverse():
+    if not n.is_leaf() and not n.name:
+        n.name = f"Node_{counter}"; counter += 1
+
+# --- 3. 导出文件 ---
+t.write(outfile="itol_tree.nwk", format=1)
+
+# A. 外圈色环 (包含 Top 20 和 Others)
+with open("itol_tree_strip.txt", "w") as f:
+    f.write("DATASET_COLORSTRIP\nSEPARATOR TAB\nDATASET_LABEL\tPhylum_Ring\nSTRIP_WIDTH\t50\nDATA\n")
+    for gid, (label, color) in style_dict.items():
+        f.write(f"{gid}\t{color}\t{label}\n")
+
+# B. 树枝着色 (关键修复)
+with open("itol_tree_branch.txt", "w") as f:
+    f.write("TREE_COLORS\nSEPARATOR TAB\nDATA\n")
+    for n in t.traverse():
+        # 只有明确分配了颜色的节点（Top20 簇 或 纯 Others 簇）才会写进配置
+        if hasattr(n, "c"):
+            f.write(f"{n.name}\tbranch\t{n.c}\tnormal\t1\n")
+        # 混合门类的祖先主干没有 'c' 属性，不会写进文件，iTOL 自动显示为黑色
+
+print("✅ 最终版已生成！")
+print("1. Top 1-10: Nature NPG 配色")
+print("2. Top 11-20: 辅助风格配色")
+print("3. Others: 浅灰色分支")
+print("4. 主干道: 自动恢复为黑色")
