@@ -285,3 +285,16 @@ phylophlan_write_config_file -o supermatrix_aa.cfg -d a --db_aa diamond --map_dn
 phylophlan -i ../4_binnning_metabat2/allbins_dRep_0.95/dereplicated_genomes/ -d phylophlan -f supermatrix_aa.cfg --diversity high --fast -o phylophlan_tree --genome_extension ".fa" --nproc 100 --verbose 2>&1 | tee phylophlan.log
 3.树ITOL(v7.4.2)可视化
 # 运行“1.4_ITOL美化树脚本”，将生成的文件依次拖入itol即可
+
+十三、Bakta(V1.12)进行SGBs注释
+1.安装bakta及数据库
+# 安装教程见官网https://github.com/oschwengers/bakta
+# 数据库下载较慢可借助aria2c多线程下载
+2.运行脚本
+for i in ~/project/1_MAG_desert/analysis/4_binnning_metabat2/allbins_dRep_0.95/dereplicated_genomes/*.fa; do
+    base=$(basename "$i" .fa)
+    if [ -d "./$base" ]; then continue; fi
+    echo "Processing $base..."
+    bakta "$i" --db ~/database/bakta_db_v6/db/ --output "./$base" --tmp-dir tmp --threads 32 --skip-plot --skip-ori --skip-gap --skip-pseudo
+done
+# --skip 那些不太必要的可节省运行时间
