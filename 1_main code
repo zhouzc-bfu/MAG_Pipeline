@@ -311,4 +311,9 @@ aria2c -s 16 -x 16 -c http://eggnog5.embl.de/download/emapperdb-5.0.2/eggnog_pro
 aria2c -s 16 -x 16 -c http://eggnog5.embl.de/download/emapperdb-5.0.2/eggnog.taxa.tar.gz
 # 数据库较大，利用aria2c多线程下载
 export EGGNOG_DATA_DIR=/data/h007/database/eggnog_db #设置eggnog数据库路径
-
+3.利用GUN Parallel进行多任务运行加速
+# 提取运行列表
+find ~/project/1_MAG_desert/analysis/8_annotation_bakta/* -name "*.faa" | grep -v "hypotheticals" > faa_list.txt 
+# 多任务运行命令
+cat faa_list.txt | parallel -j 3 --progress --joblog emapper_run.log "emapper.py -i {} --sensmode default --dmnd_iterate no --dmnd_algo ctg --output {/.} --output_dir ./output --cpu 10 --temp_dir ./tmp"
+# --dmnd_iterate no --dmnd_algo ctg 适用于小型数据集（如这里的单一MAG），可大幅加速
