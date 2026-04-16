@@ -370,7 +370,7 @@ host_summary <- final_data %>%
         Percentage_Urease_SGBs = (sum(Urease_Count > 0) / n()) * 100 # 携带尿素酶的物种占比
     )
 print(host_summary)
-5.计算宿主总体密度
+5.计算尿素酶基因占宿主总密度
 host_total_density <- final_data %>%
     group_by(Host_Name) %>%
     summarise(
