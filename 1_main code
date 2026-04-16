@@ -331,7 +331,7 @@ for file in output/*.emapper.annotations; do
     total=$(grep -v "^#" "$file" | wc -l)
     echo -e "${file%.emapper.annotations}\t$total" >> total_genes.tsv
 done
-3.合并数据
+3.合并数据（以下在R中进行）
 library(tidyverse)
 # 读取 link 表（自动处理双引号）
 links <- read.csv("link_table_name.csv", header = TRUE)
