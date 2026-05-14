@@ -290,14 +290,20 @@ phylophlan -i ../4_binnning_metabat2/allbins_dRep_0.95/dereplicated_genomes/ -d 
 1.安装bakta及数据库
 # 安装教程见官网https://github.com/oschwengers/bakta
 # 数据库下载较慢可借助aria2c多线程下载
-2.运行脚本
-for i in ~/project/1_MAG_desert/analysis/4_binnning_metabat2/allbins_dRep_0.95/dereplicated_genomes/*.fa; do
+2.多窗口运行脚本（由于有4427个SGB）
+# 在运行任何批次之前，先在终端执行这一行，将所有文件路径存入变量：
+files=(~/project/1_MAG_desert/analysis/4_binnning_metabat2/allbins_dRep_0.95/dereplicated_genomes/*.fa)
+# 窗口 1：运行第 1 - 1000 个 (索引 0-999)
+for i in "${files[@]:0:1000}"; do
     base=$(basename "$i" .fa)
     if [ -d "./$base" ]; then continue; fi
-    echo "Processing $base..."
-    bakta "$i" --db ~/database/bakta_db_v6/db/ --output "./$base" --tmp-dir tmp --threads 32 --skip-plot --skip-ori --skip-gap --skip-pseudo
+    bakta "$i" --db ~/database/bakta_db_v6/db/ --output "./$base" --tmp-dir "tmp_1" --threads 20 --skip-plot
 done
-# --skip 那些不太必要的可节省运行时间
+# 运行每一批换下面第一句，以及将--tmp-dir 中的"tmp_1"换成"tmp_2"……"tmp_5"即可：
+# 窗口2： for i in "${files[@]:1000:1000}"; do
+# 窗口3：for i in "${files[@]:2000:1000}"; do
+# 窗口4：for i in "${files[@]:3000:1000}"; do
+# 窗口5：for i in "${files[@]:4000}"; do
 
 十四、EggNOG-mapper(v2.1.13)对SGB进行功能注释
 1.conda安装eggnog-mapper
