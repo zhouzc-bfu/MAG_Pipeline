@@ -244,10 +244,14 @@ awk -F, 'NR==1{print; next} {print $1".fa,"$2","$3","$4}' allbins_checkm.csv.bak
 脚本见"run_checkm2_parallel.sh"
 
 九、dRep(v3.6.2)对bins去冗余生成非冗余MAG集
+# 物种级别去冗余（-sa 0.95）
+dRep dereplicate -p 40 dRep_0.95/ -g all_merged_bins/*.fa -pa 0.90 -sa 0.95 -nc 0.30 -cm larger --genomeInfo checkm2/checkm2_output_final/genome_quality.csv -comp 50 -con 5
+
+【以下是旧流程可删除
 1.菌株级别去冗余（-sa 0.99）
 dRep dereplicate -p 64 allbins_dRep_0.99/ -g allbins_removebadbin/all_merged_bins/*.fa -pa 0.90 -sa 0.99 -nc 0.30 -cm larger --genomeInfo allbins_checkm/allbins_checkm_dRep.csv -comp 50 -con 5
 2.物种级别去冗余（-sa 0.95）
-dRep dereplicate -p 64 allbins_dRep_0.95/ -g allbins_removebadbin/all_merged_bins/*.fa -pa 0.90 -sa 0.95 -nc 0.30 -cm larger --genomeInfo allbins_checkm/allbins_checkm_dRep.csv -comp 50 -con 5
+dRep dereplicate -p 64 allbins_dRep_0.95/ -g allbins_removebadbin/all_merged_bins/*.fa -pa 0.90 -sa 0.95 -nc 0.30 -cm larger --genomeInfo allbins_checkm/allbins_checkm_dRep.csv -comp 50 -con 5】
 
 十、GTDBtk(v2.6.1)对MAGs物种注释
 1.conda安装gtdbtk，并按提示下载gtdbtk数据库，并配置数据库路径
