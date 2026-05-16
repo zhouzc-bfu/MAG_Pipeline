@@ -216,17 +216,14 @@ checkm qa ${samplename}_checkm_out/lineage.ms ${samplename}_checkm_out/  -t 2 > 
 2.运行checkm2进行分箱质量评估
 checkm2 predict --threads 20 --input ${samplename}_bins --output-directory ${samplename}_checkm2_out -x fa
 
-3.批量运行checkm2
-脚本见"run_checkm2_parallel.sh"
-
 3.查看结果报告
 # 结果报告为quality_report.tsv，为方便阅读，我们按照Completeness（第2列）排序查看:
 (head -1 quality_report.tsv && tail -n +2 quality_report.tsv | sort -t$'\t' -k2,2nr) | less
 
-七、合并所有样本的bins进行CheckM质量评估，以及后续dRep去冗余处理
+七、合并所有样本的bins进行CheckM/CheckM2质量评估，以及后续dRep去冗余处理
 # 合并脚本见“1.2_所有样本bins批量改名合并脚本”
 
-八、对所有bins进行checkm质量评估
+八、对所有bins进行checkm/checkm2质量评估
 # 由于bin数量太多，一次运行会导致内存溢出报错，所以采用分批次运行，最后再合并，脚本见“1.3_分批次运行checkm脚本”
 # 分批次运行完后，再进行checkm qa分批次导出结果报告
 # 合并所有批次的结果报告为dRep的输入csv文件：
@@ -242,6 +239,9 @@ $NF     ~ /^[0-9]+(\.[0-9]+)?$/ {
 # 合并完后，需将genome列文件名加上.fa后缀，以满足dRep的checkm输入文件的要求：
 cp allbins_checkm/allbins_checkm.csv allbins_checkm/allbins_checkm.csv.bak # 备份原文件
 awk -F, 'NR==1{print; next} {print $1".fa,"$2","$3","$4}' allbins_checkm.csv.bak > allbins_checkm_dRep.csv # 给genome列加.fa
+
+## 批量运行checkm2
+脚本见"run_checkm2_parallel.sh"
 
 九、dRep(v3.6.2)对bins去冗余生成非冗余MAG集
 1.菌株级别去冗余（-sa 0.99）
