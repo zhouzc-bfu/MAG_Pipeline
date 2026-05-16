@@ -216,6 +216,9 @@ checkm qa ${samplename}_checkm_out/lineage.ms ${samplename}_checkm_out/  -t 2 > 
 2.运行checkm2进行分箱质量评估
 checkm2 predict --threads 20 --input ${samplename}_bins --output-directory ${samplename}_checkm2_out -x fa
 
+3.批量运行checkm2
+脚本见"run_checkm2_parallel.sh"
+
 3.查看结果报告
 # 结果报告为quality_report.tsv，为方便阅读，我们按照Completeness（第2列）排序查看:
 (head -1 quality_report.tsv && tail -n +2 quality_report.tsv | sort -t$'\t' -k2,2nr) | less
