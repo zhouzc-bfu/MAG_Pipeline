@@ -263,7 +263,7 @@ dRep dereplicate -p 64 allbins_dRep_0.95/ -g allbins_removebadbin/all_merged_bin
 gtdbtk classify_wf --genome_dir 4_binnning_metabat2/allbins_dRep_0.95/dereplicated_genomes/ --out_dir gtdbtk_r226_out -x fa --cpus 32 --pplacer_cpus 2
 
 十一、CoverM(v0.7.0)对计算每个样本的SGBs覆盖度（丰度）
-TMPDIR=./tmp coverm genome --genome-fasta-directory ~/project/1_MAG_desert/analysis/4_binnning_metabat2/allbins_dRep_0.95/dereplicated_genomes/ --genome-fasta-extension fa --coupled ~/project/1_MAG_desert/analysis/2_host_remove_bowtie2/host_remove_data/camel/*.fastq.gz --methods tpm --min-read-percent-identity 95 --min-read-aligned-percent 75 -t 20 -o camel_coverm.tsv
+TMPDIR=./tmp coverm genome --genome-fasta-directory ~/project/1_MAG_desert/analysis/4_binnning_metabat2/aaa_new/dRep_0.95/dereplicated_genomes/ --genome-fasta-extension fa --coupled ~/project/1_MAG_desert/analysis/2_host_remove_bowtie2/host_remove_data/camel/*.fastq.gz --methods tpm --min-read-percent-identity 95 --min-read-aligned-percent 75 -t 20 -o camel_coverm.tsv
 # 注意先在自己文件夹中创建一个暂存文件夹tmp，并通过 TMPDIR=/path/to/your/tmp 命令指定暂存文件夹位置，否则coverm会默认将暂存文件夹放在系统盘，可能会被系统查杀
 # --methods tpm 该参数比较重要，表示覆盖度（丰度）的计算方法，这里选用tmp(转录组每百万reads数)，该方法可标准化丰度，消除不用样本测序深度与MAG长度的影响，为当前最好选择。该参数也可同时指定多种计算方法，例如: --methods tmp rpkm mean
 # 若丰度计算方式选了多种，筛选出TPM单独存表命令(以gg_coverm.tsv为例)：
@@ -303,7 +303,7 @@ phylophlan -i ../4_binnning_metabat2/allbins_dRep_0.95/dereplicated_genomes/ -d 
 # 数据库下载较慢可借助aria2c多线程下载
 2.多窗口运行脚本（由于有4427个SGB）
 # 在运行任何批次之前，先在终端执行这一行，将所有文件路径存入变量：
-files=(~/project/1_MAG_desert/analysis/4_binnning_metabat2/allbins_dRep_0.95/dereplicated_genomes/*.fa)
+files=(~/project/1_MAG_desert/analysis/4_binnning_metabat2/aaa_new/dRep_0.95/dereplicated_genomes/*.fa)
 # 窗口 1：运行第 1 - 1000 个 (索引 0-999)
 for i in "${files[@]:0:1000}"; do
     base=$(basename "$i" .fa)
