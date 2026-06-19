@@ -334,3 +334,83 @@ find ~/project/1_MAG_desert/analysis/8_annotation_bakta/* -name "*.faa" | grep -
 # 多任务运行命令
 cat faa_list.txt | parallel -j 3 --progress --joblog emapper_run.log "emapper.py --data_dir ~/database/eggnog_db -i {} --sensmode default --dmnd_iterate no --dmnd_algo ctg --output {/.} --output_dir ./output --cpu 10 --temp_dir ./tmp"
 # --dmnd_iterate no --dmnd_algo ctg 适用于小型数据集（如这里的单一MAG），可大幅加速
+
+十五、dbCAN(5.2.9)对UBA737及同科SGB进行碳水化合物活性酶(CAZymes)注释
+1.conda安装dbcan：参照官网教程
+2.下载dbcan数据库：参照官网教程，对于个别因网络问题下载不下来的数据库文件，可采用下法：
+aws s3 ls --no-sign-request s3://dbcan/db_v5-2-9_5-5-2026/  #获取数据库文件列表
+aria2c -x 16 -s 16 -k 1M -c "https://dbcan.s3.us-west-2.amazonaws.com/db_v5-2-9_5-5-2026/CAZyDB.07242025.fa"  #aria2c多线程加速下载所需要文件
+3.运行dbcan进行CAZymes注释(直接运行easy_substrate会将所有分析同时做出，包括CAZymes注释与CGC注释，因此只做这个就行)
+#单一基因组运行命令示意：
+run_dbcan easy_substrate \
+  --input_raw_data ./f__Acutalibacteraceae_faa/SGB_0023.faa \
+  --mode protein \
+  --output_dir ./dbcan_substrate_out/SGB_0023 \
+  --db_dir /data/h007/database/dbcan_db \
+  --input_gff ./SGB_0023.gff3 \
+  --gff_type prodigal \
+  --threads 16
+#批量运行脚本如下：
+mkdir -p dbcan_substrate_out logs
+
+ls ./f__Acutalibacteraceae_faa/*.faa | parallel -j 4 '
+sample=$(basename {} .faa)
+gff="./f__Acutalibacteraceae_gff/${sample}.gff3"
+
+if [ ! -s "$gff" ]; then
+    echo "WARNING: GFF3 not found for ${sample}, skip." >> logs/missing_gff.log
+    exit 0
+fi
+
+echo "Running ${sample} ..."
+
+run_dbcan easy_substrate \
+  --input_raw_data {} \
+  --mode protein \
+  --output_dir ./dbcan_substrate_out/${sample} \
+  --db_dir /data/h007/database/dbcan_db \
+  --input_gff "$gff" \
+  --gff_type prodigal \
+  --threads 16 \
+  > ./logs/${sample}.easy_substrate.log \
+  2> ./logs/${sample}.easy_substrate.err
+'
+4.合并主要结果文件
+#合并所有CAZyme注释overview.tsv
+first=1
+
+for f in dbcan_substrate_out/*/overview.tsv
+do
+    sample=$(basename "$(dirname "$f")")
+
+    if [ "$first" -eq 1 ]; then
+        awk -v s="$sample" 'BEGIN{OFS="\t"} NR==1{print "Sample",$0} NR>1{print s,$0}' "$f" > all_overview.tsv
+        first=0
+    else
+        awk -v s="$sample" 'BEGIN{OFS="\t"} NR>1{print s,$0}' "$f" >> all_overview.tsv
+    fi
+done
+
+#合并所有CGC summary：
+first=1
+
+for f in dbcan_substrate_out/*/cgc_standard_out_summary.tsv
+do
+    sample=$(basename "$(dirname "$f")")
+
+    if [ "$first" -eq 1 ]; then
+        awk -v s="$sample" 'BEGIN{OFS="\t"} NR==1{print "Sample",$0} NR>1{print s,$0}' "$f" > all_cgc_standard_out_summary.tsv
+        first=0
+    else
+        awk -v s="$sample" 'BEGIN{OFS="\t"} NR>1{print s,$0}' "$f" >> all_cgc_standard_out_summary.tsv
+    fi
+done
+
+#合并所有 substrate prediction：
+echo -e "Sample\tcgcid\tPULID\tdbCAN-PUL_substrate\tbitscore\tsignature_pairs\tdbCAN-sub_substrate\tdbCAN-sub_substrate_score" > all_substrate_prediction.tsv
+
+for f in dbcan_substrate_out/*/substrate_prediction.tsv
+do
+    sample=$(basename "$(dirname "$f")")
+    awk -v s="$sample" 'BEGIN{OFS="\t"} NR>1 && NF>0 {print s,$0}' "$f" >> all_substrate_prediction.tsv
+done
