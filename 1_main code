@@ -294,7 +294,12 @@ NR==1 {
 phylophlan_write_config_file -o supermatrix_aa.cfg -d a --db_aa diamond --map_dna diamond --map_aa diamond --msa mafft --trim trimal --tree1 fasttree --tree2 raxml --verbose
 2.运行
 phylophlan -i ~/project/1_MAG_desert/analysis/4_binnning_metabat2/aaa_new/dRep_0.95/dereplicated_genomes/ -d phylophlan -f supermatrix_aa.cfg --diversity high --fast -o phylophlan_tree --genome_extension ".fa" --nproc 100 --verbose 2>&1 | tee phylophlan.log
-# 该步如报gene_markers_identification crashed错误，一般是DIAMOND程序崩溃，中断子进程并删掉该子程序在tmp/map_dna/中的临时文件，然后重新运行命令即可
+# 该步如报gene_markers_identification crashed错误（高发），一般是DIAMOND程序崩溃，中断遗留子进程并进入tmp/map_dna/删掉该子程序在中的临时文件，然后重新运行命令即可，具体步骤如下：
+pgrep -af '/data/h007/.conda/envs/phylophlan/bin/diamond blastx' #列出遗留子进程
+find -maxdepth 1 -type f -name '*.b6o.bkp' -size 0 -print #列出空文件，确保与遗留子进程一致
+pkill -TERM -u "h007" -f '/data/h007/.conda/envs/phylophlan/bin/diamond blastx' #若一致，中断这些子进程
+find -maxdepth 1 -type f -name '*.b6o.bkp' -size 0 -delete #删除这些空文件
+继续运行第2步phylophlan运行步骤
 3.树ITOL(v7.4.2)可视化
 # 运行“1.4_ITOL美化树脚本”，将生成的文件依次拖入itol即可
 
